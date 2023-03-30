@@ -1,6 +1,6 @@
 const TYPES = ['taxi', 'bus', 'train', 'ship','drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
 
-const MIN_POINTS_COUNT = 3;
+const MIN_POINTS_COUNT = 0;
 const MAX_POINTS_COUNT = 10;
 
 const DESTINATIONS = [

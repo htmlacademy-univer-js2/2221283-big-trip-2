@@ -3,6 +3,7 @@ import NewWaypointView from '../view/waypoint-view.js';
 import NewEditFormView from '../view/edit-form-view.js';
 import NewSortingView from '../view/sorting-view.js';
 import TripEventsView from '../view/events-view.js';
+import ZeroEventsView from '../view/zero-events-view.js';
 import { isEscapeKey } from '../utils.js';
 
 
@@ -22,11 +23,15 @@ export default class TripEventsPresenter {
   init () {
     this.points = [...this.#pointsModel.points];
 
-    render(new NewSortingView(), this.#tripContainer);
-    render(this.#eventsList, this.#tripContainer);
+    if (this.points.length === 0) {
+      render(new ZeroEventsView(), this.#tripContainer);
+    } else {
+      render(new NewSortingView(), this.#tripContainer);
+      render(this.#eventsList, this.#tripContainer);
 
-    for (let i = 0; i < this.points.length; i++) {
-      this.#renderPoint(this.points[i]);
+      for (let i = 0; i < this.points.length; i++) {
+        this.#renderPoint(this.points[i]);
+      }
     }
   }
 
