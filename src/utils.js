@@ -7,7 +7,7 @@ const getRandomNumber = (start, end) => {
   start = Math.min(start,end);
   end = Math.max(start, end);
 
-  return Math.round(Math.random()* (end - start) + start);
+  return Math.round(Math.random() * (end - start) + start);
 };
 
 const getRandomElement = (elements) => {
@@ -43,6 +43,8 @@ const getEventDuration = (dateFrom, dateTo) => {
 
 const humanizeFormDate = (date) => dayjs(date).format('DD/MM/YY HH:mm');
 
+const isEscapeKey = (evt) => evt.key === 'Escape';
+
 export{getRandomNumber, getRandomElement,
   humanizePointDay, humanizePointTime, humanizeFormDate,
-  getEventDuration};
+  getEventDuration, isEscapeKey};
