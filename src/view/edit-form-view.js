@@ -49,7 +49,7 @@ const getAvailableDestinations = (destinations) => {
 
 const getDestinationsList = (thisDestination, destinations, type) => {
   const destinationsByType = destinations.find((item) => item.type === type);
-  const allDestinatioins = destinationsByType? destinationsByType : destinations;
+  const allDestinatioins = destinationsByType ? destinationsByType : destinations;
 
   return(
     `<div class="event__field-group  event__field-group--destination">

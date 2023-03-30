@@ -36,11 +36,11 @@ export default class TripEventsPresenter {
 
     const replacePointToEditForm = () => {
       this.#eventsList.element.replaceChild(editingForm.element, pointComponent.element);
-    }
+    };
 
     const replaceEditFormToPoint = () => {
       this.#eventsList.element.replaceChild(pointComponent.element, editingForm.element);
-    }
+    };
 
     const onDocumentEscapeKeyDown = (evt) => {
       if (isEscapeKey(evt)) {
@@ -49,22 +49,22 @@ export default class TripEventsPresenter {
       }
 
       document.removeEventListener('keydown', onDocumentEscapeKeyDown);
-    }
+    };
 
     const openEditForm = () => {
       replacePointToEditForm();
       document.addEventListener('keydown', onDocumentEscapeKeyDown);
-    }
+    };
 
     const closeEditForm = () => {
       replaceEditFormToPoint();
       document.removeEventListener('keydown', onDocumentEscapeKeyDown);
-    }
+    };
 
     const onSubmitEditForm = (evt) => {
       evt.preventDefault();
       closeEditForm();
-    }
+    };
 
     const onOpenEditFormButton = () => openEditForm();
     const onCloseEditFormButton = () => closeEditForm();
