@@ -1,10 +1,10 @@
-import {render} from '../render.js';
+import { render, replace } from '../framework/render.js';
 import NewWaypointView from '../view/waypoint-view.js';
 import NewEditFormView from '../view/edit-form-view.js';
 import NewSortingView from '../view/sorting-view.js';
 import TripEventsView from '../view/events-view.js';
 import ZeroEventsView from '../view/zero-events-view.js';
-import { isEscapeKey } from '../utils.js';
+import { isEscapeKey } from '../utils/common.js';
 
 
 export default class TripEventsPresenter {
@@ -40,11 +40,11 @@ export default class TripEventsPresenter {
     const editingForm = new NewEditFormView(point, this.#destinations);
 
     const replacePointToEditForm = () => {
-      this.#eventsList.element.replaceChild(editingForm.element, pointComponent.element);
+      replace(editingForm, pointComponent);
     };
 
     const replaceEditFormToPoint = () => {
-      this.#eventsList.element.replaceChild(pointComponent.element, editingForm.element);
+      replace(pointComponent, editingForm);
     };
 
     const onDocumentEscapeKeyDown = (evt) => {
@@ -66,21 +66,9 @@ export default class TripEventsPresenter {
       document.removeEventListener('keydown', onDocumentEscapeKeyDown);
     };
 
-    const onSubmitEditForm = (evt) => {
-      evt.preventDefault();
-      closeEditForm();
-    };
-
-    const onOpenEditFormButton = () => openEditForm();
-    const onCloseEditFormButton = () => closeEditForm();
-
-    const openEditFormButton = pointComponent.element.querySelector('.event__rollup-btn');
-    const submitEventButton = editingForm.element;
-    const closeEditFormButton = editingForm.element.querySelector('.event__rollup-btn');
-
-    openEditFormButton.addEventListener('click', onOpenEditFormButton);
-    closeEditFormButton.addEventListener('click', onCloseEditFormButton);
-    submitEventButton.addEventListener('submit', onSubmitEditForm);
+    pointComponent.setClickHandler(openEditForm);
+    editingForm.setClickHandler(closeEditForm);
+    editingForm.setFormSubmitHandler(closeEditForm);
 
     render(pointComponent, this.#eventsList.element);
   }

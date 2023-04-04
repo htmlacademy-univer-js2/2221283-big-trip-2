@@ -1,6 +1,6 @@
 import NewFilterView from './view/filter-view';
 import TripEventsPresenter from './presenter/trip-presenter';
-import { render } from './render';
+import { render } from './framework/render';
 import PointsModel from './model/points-model';
 import DestinationModel from './model/destinations-model';
 
