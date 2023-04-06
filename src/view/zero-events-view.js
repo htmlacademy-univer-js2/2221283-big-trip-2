@@ -1,25 +1,11 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view';
 
 const createZeroEventsTemplate = () => (
   '<p class="trip-events__msg">Click New Event to create your first point</p>'
 );
 
-export default class ZeroEventsView {
-  #element = null;
-
+export default class ZeroEventsView extends AbstractView {
   get template () {
     return createZeroEventsTemplate;
-  }
-
-  get element() {
-    if (!this.#element){
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
   }
 }

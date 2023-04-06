@@ -1,5 +1,5 @@
-import { createElement } from '../render.js';
-import { humanizePointDay, humanizePointTime, getEventDuration } from '../utils.js';
+import AbstractView from '../framework/view/abstract-view.js';
+import { humanizePointDay, humanizePointTime, getEventDuration } from '../utils/task.js';
 import { getOffersByType } from '../mock/offers.js';
 import OffersView from './offers-view.js';
 
@@ -71,12 +71,12 @@ const createWaypointTemplate = (point, availableDestinations) => {
 </li>`);
 };
 
-export default class PointView {
-  #element = null;
+export default class PointView extends AbstractView {
   #point = null;
   #allDestinations = null;
 
   constructor(point, allDestinations){
+    super();
     this.#point = point;
     this.#allDestinations = allDestinations;
   }
@@ -85,15 +85,13 @@ export default class PointView {
     return createWaypointTemplate(this.#point, this.#allDestinations);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
+  setClickHandler = (callback) => {
+    this._callback.click = callback;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#clickHandler);
+  };
 
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
-  }
+  #clickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.click();
+  };
 }
