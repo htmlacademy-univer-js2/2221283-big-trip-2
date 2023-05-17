@@ -3,6 +3,7 @@ import { generateOffersByType } from './offers.js';
 import { TYPES, Prices, DESTINATIONS} from './constants.js';
 import { generateDate } from './dates.js';
 import { generateDestination } from '../mock/destination';
+import { nanoid } from 'nanoid';
 
 export const generatePoint = () => {
   const type = getRandomElement(TYPES);
@@ -14,7 +15,7 @@ export const generatePoint = () => {
     dateFrom,
     'dateTo': generateDate(dateFrom),
     'destination': getRandomElement(destinations).id,
-    'id': getRandomNumber(1,100),
+    'id': nanoid(),
     'isFavourite': Boolean(getRandomNumber(0,1)),
     'offers': generateOffersByType(type),
     type,
