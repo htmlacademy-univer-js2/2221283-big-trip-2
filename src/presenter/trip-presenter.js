@@ -4,15 +4,19 @@ import TripEventsView from '../view/events-view.js';
 import ZeroEventsView from '../view/zero-events-view.js';
 import PointPresenter from './point-presenter.js';
 import { updateItem } from '../utils/common.js';
-
+import { sortPointByDay, sortPointByPrice, sortPointByTime } from '../utils/task.js';
+import { SortType } from '../const.js';
 
 export default class TripEventsPresenter {
   #eventsList = null;
   #tripContainer = null;
   #pointPresenter = new Map();
+  #currentSortType = SortType.DAY;
+  #sourcedPoints = [];
 
   #pointsModel = null;
   #tripEvents = [];
+  #points = [];
 
   #destinations = null;
 
@@ -27,9 +31,10 @@ export default class TripEventsPresenter {
   }
 
   init () {
-    this.points = [...this.#pointsModel.points];
+    this.#sourcedPoints = [...this.#pointsModel.points].sort(sortPointByDay);
+    this.#points = [...this.#pointsModel.points].sort(sortPointByDay);
 
-    if (this.points.length === 0) {
+    if (this.#points.length === 0) {
       this.#renderNoEvents();
     } else {
       this.#renderSort();
@@ -46,8 +51,8 @@ export default class TripEventsPresenter {
   #renderPoints = () => {
     this.#renderEventsList();
 
-    for (let i = 0; i < this.points.length; i++) {
-      this.#renderPoint(this.points[i]);
+    for (let i = 0; i < this.#points.length; i++) {
+      this.#renderPoint(this.#points[i]);
     }
   };
 
@@ -55,8 +60,36 @@ export default class TripEventsPresenter {
     render(this.#noEventsComponent, this.#tripContainer, RenderPosition.AFTERBEGIN);
   };
 
+  #sortPoints = (sortType) => {
+    switch (sortType) {
+      case SortType.PRICE:
+        this.#points.sort(sortPointByPrice);
+        break;
+
+      case SortType.TIME:
+        this.#points.sort(sortPointByTime);
+        break;
+
+      default:
+        this.#points.sort(sortPointByDay);
+    }
+
+    this.#currentSortType = sortType;
+  };
+
+  #handleSortTypeChange = (sortType) => {
+    if (this.#currentSortType === sortType) {
+      return;
+    }
+
+    this.#sortPoints(sortType);
+    this.#clearEventsList();
+    this.#renderPoints();
+  };
+
   #renderSort = () => {
     render(this.#sortingComponent, this.#tripContainer, RenderPosition.AFTERBEGIN);
+    this.#sortingComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
   };
 
   #renderEventsList = () => {
@@ -70,6 +103,8 @@ export default class TripEventsPresenter {
 
   #handlePointChange = (updatePoint) => {
     this.#tripEvents = updateItem(this.#tripEvents, updatePoint);
+    this.#sourcedPoints = updateItem(this.#sourcedPoints, updatePoint);
+
     this.#pointPresenter.get(updatePoint.id).init(updatePoint, this.#destinations);
   };
 

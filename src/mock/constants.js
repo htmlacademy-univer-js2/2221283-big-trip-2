@@ -50,10 +50,5 @@ const OffersCount = {
   MAX: 6
 };
 
-const FilterType = {
-  EVERYTHING: 'everything',
-  FUTURE: 'future',
-  PAST: 'past'
-};
-
-export {TYPES, MIN_POINTS_COUNT, MAX_POINTS_COUNT, DESTINATIONS, OFFERS, DESCRIPTIONS, PICTURE_DISCRIPTIONS, PicturesInfo, Prices, OffersCount, FilterType };
+export {TYPES, MIN_POINTS_COUNT, MAX_POINTS_COUNT, DESTINATIONS, OFFERS,
+  DESCRIPTIONS, PICTURE_DISCRIPTIONS, PicturesInfo, Prices, OffersCount };

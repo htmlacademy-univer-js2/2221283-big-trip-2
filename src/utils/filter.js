@@ -1,4 +1,4 @@
-import { FilterType } from '../mock/constants.js';
+import { FilterType } from '../const.js';
 import { isPointPast, isPointFuture } from './task.js';
 
 const filter = {
