@@ -26,20 +26,20 @@ export default class PointPresenter {
     this.#changeMode = changeMode;
   }
 
-  init = (point, destinations) => {
+  init = (point, destinations, offers) => {
     this.#point = point;
 
     const prevPointComponent = this.#pointComponent;
     const prevPointEditComponent = this.#pointEditComponent;
 
-    this.#pointComponent = new NewWaypointView(point, destinations);
-    this.#pointEditComponent = new NewEditFormView(point, destinations);
+    this.#pointComponent = new NewWaypointView(point, destinations, offers);
+    this.#pointEditComponent = new NewEditFormView(point, destinations, offers);
 
     this.#pointComponent.setClickHandler(this.#openEditForm);
     this.#pointComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
 
-    this.#pointEditComponent.setClickHandler(this.#closeEditForm);
     this.#pointEditComponent.setFormSubmitHandler(this.#onEditFormSubmit);
+    this.#pointEditComponent.setFormCloseHandler(this.#closeEditForm);
 
     if (prevPointComponent === null || prevPointEditComponent === null) {
       render(this.#pointComponent, this.#pointListContainer);
@@ -74,6 +74,7 @@ export default class PointPresenter {
   resetView = () => {
     if (this.#mode !== Mode.DEFAULT) {
       this.#closeEditForm();
+      this.#pointEditComponent.reset(this.#point);
     }
   };
 
@@ -98,6 +99,7 @@ export default class PointPresenter {
   };
 
   #closeEditForm = () => {
+    this.#pointEditComponent.reset(this.#point);
     this.#replaceEditFormToPoint();
     document.removeEventListener('keydown', this.#onDocumentEscapeKeyDown);
     this.#mode = Mode.DEFAULT;

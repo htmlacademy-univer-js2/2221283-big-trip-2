@@ -19,15 +19,17 @@ export default class TripEventsPresenter {
   #points = [];
 
   #destinations = null;
+  #offers = null;
 
   #noEventsComponent = new ZeroEventsView();
-  #sortingComponent = new NewSortingView();
+  #sortingComponent = new NewSortingView(this.#currentSortType);
 
-  constructor(tripContainer, pointsModel, destinationsModel) {
+  constructor(tripContainer, pointsModel, destinationsModel, offersModel) {
     this.#eventsList = new TripEventsView();
     this.#tripContainer = tripContainer;
     this.#pointsModel = pointsModel;
     this.#destinations = destinationsModel.destinations;
+    this.#offers = offersModel.offers;
   }
 
   init () {
@@ -44,7 +46,7 @@ export default class TripEventsPresenter {
 
   #renderPoint (point) {
     const pointPresenter = new PointPresenter(this.#eventsList.element, this.#handlePointChange, this.#handleModeChange);
-    pointPresenter.init(point, this.#destinations);
+    pointPresenter.init(point, this.#destinations, this.#offers);
     this.#pointPresenter.set(point.id, pointPresenter);
   }
 
@@ -105,7 +107,7 @@ export default class TripEventsPresenter {
     this.#tripEvents = updateItem(this.#tripEvents, updatePoint);
     this.#sourcedPoints = updateItem(this.#sourcedPoints, updatePoint);
 
-    this.#pointPresenter.get(updatePoint.id).init(updatePoint, this.#destinations);
+    this.#pointPresenter.get(updatePoint.id).init(updatePoint, this.#destinations, this.#offers);
   };
 
   #handleModeChange = () => {
