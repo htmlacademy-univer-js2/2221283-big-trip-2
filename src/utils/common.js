@@ -27,4 +27,6 @@ const updateItem = (items, update) => {
   ];
 };
 
-export {getRandomNumber, getRandomElement, isEscapeKey, updateItem};
+const getOffersByType = (offers, type) => offers.find((offer) => offer.type === type);
+
+export {getRandomNumber, getRandomElement, isEscapeKey, updateItem, getOffersByType};

@@ -11,14 +11,6 @@ const DESTINATIONS = [
   'London',
 ];
 
-const OFFERS = [
-  'Upgrade to a business class',
-  'Add breakfast',
-  'Rent a car',
-  'Book tickets',
-  'Switch to comfort',
-];
-
 const DESCRIPTIONS = [
   'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
   'Cras aliquet varius magna, non porta ligula feugiat eget.',
@@ -50,5 +42,5 @@ const OffersCount = {
   MAX: 6
 };
 
-export {TYPES, MIN_POINTS_COUNT, MAX_POINTS_COUNT, DESTINATIONS, OFFERS,
+export {TYPES, MIN_POINTS_COUNT, MAX_POINTS_COUNT, DESTINATIONS,
   DESCRIPTIONS, PICTURE_DISCRIPTIONS, PicturesInfo, Prices, OffersCount };
