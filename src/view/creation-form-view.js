@@ -1,5 +1,4 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import EditingFormView from './edit-form-view.js';
 
 const createNewFormTemplate = () => (
   `<li class="trip-events__item">
@@ -148,22 +147,41 @@ export default class NewFormView extends AbstractView {
   _state = null;
   #destinations = null;
   #allOffers = null;
+  #datepickerFrom = null;
+  #datepickerTo = null;
+  #offersByType = null;
 
-  constructor( allDestinatioins, allOffers){
+  constructor(form, allDestinatioins, allOffers){
     super();
+    this._state = NewFormView.parseFormToState(form);
     this.#destinations = allDestinatioins;
     this.#allOffers = allOffers;
+    this.#offersByType = getOffersByType(this.#allOffers, this._state.type);
 
     this.#setInnerHandlers();
+    this.#setDatepickerFrom();
+    this.#setDatepickerTo();
   }
 
   get template () {
     return createNewFormTemplate();
   }
 
+  removeElement = () => {
+    super.removeElement();
+
+    if (this.#datepickerFrom && this.#datepickerTo) {
+      this.#datepickerFrom.destroy();
+      this.#datepickerTo.destroy();
+
+      this.#datepickerFrom = null;
+      this.#datepickerTo = null;
+    }
+  };
+
   reset = (point) => {
     this.updateElement(
-      EditingFormView.parseFormToState(point),
+      NewFormView.parseFormToState(point),
     );
   };
 
@@ -181,21 +199,59 @@ export default class NewFormView extends AbstractView {
     this.#setInnerHandlers();
     this.setFormSubmitHandler(this._callback.formSubmit);
     this.setFormCloseHandler(this._callback.formClose);
+    this.#setDatepickerFrom();
+    this.#setDatepickerTo();
   };
 
   #setInnerHandlers = () => {
     this.element.querySelector('.event__type-list').addEventListener('click', this.#pointTypeClickHandler);
 
-    if(this._state && this._state.offers.offers.length && this.#allOffers.length) {
+    if(this.#offersByType.offers.length > 0) {
       this.element.querySelector('.event__available-offers').addEventListener('click', this.#offersClickHandler);
-    }
 
     this.element.querySelector('.event__input--destination').addEventListener('input', this.#destinationInputHandler);
   };
 
+  #setDatepickerFrom = () => {
+    this.#datepickerFrom = flatpickr(
+      this.element.querySelector('#event-start-time-1'),
+      {
+        dateFormat: 'd/m/y H:i',
+        enableTime: true,
+        defaultDate: this._state.dateFrom,
+        onChange: this.#dateFromChangeHandler,
+      },
+    );
+  };
+
+  #setDatepickerTo = () => {
+    this.#datepickerTo = flatpickr(
+      this.element.querySelector('#event-end-time-1'),
+      {
+        dateFormat: 'd/m/y H:i',
+        enableTime: true,
+        defaultDate: this._state.dateTo,
+        minDate: this._state.dateFrom,
+        onChange: this.#dateToChangeHandler,
+      },
+    );
+  };
+
+  #dateFromChangeHandler = ([date]) => {
+    this.updateElement({
+      dateFrom: date,
+    });
+  };
+
+  #dateToChangeHandler = ([date]) => {
+    this.updateElement({
+      dateTo: date,
+    });
+  };
+
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this._callback.formSubmit(EditingFormView.parseStateToForm(this._state));
+    this._callback.formSubmit(NewFormView.parseStateToForm(this._state));
   };
 
   #formCloseHandler = (evt) => {
@@ -214,6 +270,19 @@ export default class NewFormView extends AbstractView {
   #offersClickHandler = (evt) => {
     if(evt.target.tagName === 'INPUT') {
       evt.preventDefault();
+
+      const newOfferId = Number(evt.target.id.slice(-1));
+
+      if(this._state.offers.includes(newOfferId)) {
+        this._state.offers = this._state.offers.filter((id) => id !== newOfferId);
+      }
+      else {
+        this._state.offers.push(newOfferId);
+      }
+
+      this.updateElement({
+        offers: this._state.offers,
+      });
     }
   };
 

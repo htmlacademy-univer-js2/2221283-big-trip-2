@@ -35,11 +35,11 @@ export default class PointPresenter {
     this.#pointComponent = new NewWaypointView(point, destinations, offers);
     this.#pointEditComponent = new NewEditFormView(point, destinations, offers);
 
-    this.#pointComponent.setClickHandler(this.#openEditForm);
-    this.#pointComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
+    this.#pointComponent.setClickHandler(this.#onEditFormClick);
+    this.#pointComponent.setFavoriteClickHandler(this.#onFavoriteButtonClick);
 
-    this.#pointEditComponent.setFormSubmitHandler(this.#onEditFormSubmit);
-    this.#pointEditComponent.setFormCloseHandler(this.#closeEditForm);
+    this.#pointEditComponent.setFormSubmitHandler(this.#onEditFormSubmitClick);
+    this.#pointEditComponent.setFormCloseHandler(this.#onCloseEditFormClick);
 
     if (prevPointComponent === null || prevPointEditComponent === null) {
       render(this.#pointComponent, this.#pointListContainer);
@@ -58,56 +58,53 @@ export default class PointPresenter {
     remove(prevPointEditComponent);
   };
 
+  resetView = () => {
+    if (this.#mode !== Mode.DEFAULT) {
+      this.#onCloseEditFormClick();
+    }
+  };
+
   destroy = () => {
     remove(this.#pointComponent);
     remove(this.#pointEditComponent);
   };
 
-  #replacePointToEditForm = () => {
-    replace(this.#pointEditComponent, this.#pointComponent);
+  #onCloseEditFormClick = () => {
+    this.#pointEditComponent.reset(this.#point);
+    this.#replaceEditFormToPoint();
+    document.removeEventListener('keydown', this.OnEscKeyClick);
   };
 
   #replaceEditFormToPoint = () => {
     replace(this.#pointComponent, this.#pointEditComponent);
+    this.#mode = Mode.DEFAULT;
   };
 
-  resetView = () => {
-    if (this.#mode !== Mode.DEFAULT) {
-      this.#closeEditForm();
-      this.#pointEditComponent.reset(this.#point);
-    }
-  };
-
-  #onDocumentEscapeKeyDown = (evt) => {
-    if (isEscapeKey(evt)) {
-      evt.preventDefault();
-      this.#replaceEditFormToPoint();
-    }
-
-    document.removeEventListener('keydown', this.#onDocumentEscapeKeyDown);
-  };
-
-  #openEditForm = () => {
-    this.#replacePointToEditForm();
-    document.addEventListener('keydown', this.#onDocumentEscapeKeyDown);
+  #replacePointToEditForm = () => {
+    replace(this.#pointEditComponent, this.#pointComponent);
     this.#changeMode();
     this.#mode = Mode.EDITING;
   };
 
-  #handleFavoriteClick = () => {
+  OnEscKeyClick = (evt) => {
+    if (isEscapeKey(evt)) {
+      evt.preventDefault();
+      this.#onCloseEditFormClick();
+    }
+  };
+
+  #onEditFormClick = () => {
+    this.#replacePointToEditForm();
+    document.addEventListener('keydown', this.OnEscKeyClick);
+  };
+
+  #onFavoriteButtonClick = () => {
     this.#changeData({...this.#point, isFavourite: !this.#point.isFavourite});
   };
 
-  #closeEditForm = () => {
-    this.#pointEditComponent.reset(this.#point);
-    this.#replaceEditFormToPoint();
-    document.removeEventListener('keydown', this.#onDocumentEscapeKeyDown);
-    this.#mode = Mode.DEFAULT;
-  };
-
-  #onEditFormSubmit = (point) => {
+  #onEditFormSubmitClick = (point) => {
     this.#changeData(point);
     this.#replaceEditFormToPoint();
-    document.removeEventListener('keydown', this.#onDocumentEscapeKeyDown);
+    document.removeEventListener('keydown', this.OnEscKeyClick);
   };
 }
