@@ -1,13 +1,17 @@
 import { humanizeFormDate } from '../utils/task.js';
 import { getOffersByType } from '../utils/common.js';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
+import flatpickr from 'flatpickr';
 
-const fillOffersList = (checkedItems, allOffers) =>
+import 'flatpickr/dist/flatpickr.min.css';
+
+
+const fillOffersList = (checkedItemsIds, allOffers) =>
   (allOffers.map((offer) => (
     `<div class="event__offer-selector">
       <input class="event__offer-checkbox  visually-hidden"
       id="event-offer-${offer.id}" type="checkbox" name="event-offer-comfort"
-      ${checkedItems.find((checkedOffer) => checkedOffer.id === offer.id) ? 'checked' : ''}>
+      ${checkedItemsIds.includes(offer.id) ? 'checked' : ''}>
       <label class="event__offer-label" for="event-offer-${offer.id}">
         <span class="event__offer-title">${offer.title}</span>
         &plus;&euro;&nbsp;
@@ -79,10 +83,12 @@ const getDestinationBlock = (destination) => {
 const createEditingFormTemplate = (form, allDestinations, offersByType) => {
   const {basePrice, dateFrom, dateTo, destination, offers, type} = form;
 
-  const allOffers = getOffers(offers.offers, offersByType.offers);
+  const allOffers = getOffers(offers, offersByType.offers);
 
   const humanizedDateFrom = humanizeFormDate(dateFrom);
   const humanizedDateTo = humanizeFormDate(dateTo);
+
+  const isSubmitDisabled = dateFrom === null || dateTo === null;
 
   const currentDestination = allDestinations.find((item) => item.id === destination);
 
@@ -159,7 +165,7 @@ const createEditingFormTemplate = (form, allDestinations, offersByType) => {
         </label>
         <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value=${basePrice}>
       </div>
-      <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
+      <button class="event__save-btn  btn  btn--blue" type="submit"  ${isSubmitDisabled ? 'disabled' : ''}>Save</button>
       <button class="event__reset-btn" type="reset">Delete</button>
       <button class="event__rollup-btn" type="button">
         <span class="visually-hidden">Open event</span>
@@ -179,23 +185,86 @@ export default class EditingFormView extends AbstractStatefulView {
   #destinations = null;
   #allOffers = null;
   #offersByType = null;
+  #datepickerFrom = null;
+  #datepickerTo = null;
 
   constructor(form, allDestinatioins, allOffers) {
     super();
     this.#destinations = allDestinatioins;
     this._state = EditingFormView.parseFormToState(form);
     this.#allOffers = allOffers;
-    this.#offersByType = getOffersByType(allOffers, this._state.type);
+    this.#offersByType = getOffersByType(this.#allOffers, this._state.type);
 
     this.#setInnerHandlers();
+    this.#setDatepickerFrom();
+    this.#setDatepickerTo();
   }
 
   get template () {
     return createEditingFormTemplate(this._state, this.#destinations, this.#offersByType);
   }
 
+  removeElement() {
+    super.removeElement();
+
+    if(this.#datepickerFrom && this.#datepickerTo) {
+      this.#datepickerFrom.destroy();
+      this.#datepickerFrom = null;
+
+      this.#datepickerTo.destroy();
+      this.#datepickerTo = null;
+    }
+  }
+
   reset = (point) => {
     this.updateElement(EditingFormView.parseFormToState(point));
+  };
+
+  #dueDateChangeHandler = ([userDate]) => {
+    this.updateElement({
+      dueDate: userDate
+    });
+  };
+
+  #setDatepickerFrom() {
+    if (this._state.isDueDate) {
+      this.#datepickerFrom = flatpickr(
+        this.element.querySelector('#event-start-time-1'),
+        {
+          dateFormat: 'd/m/y H:i',
+          enableTime: true,
+          defaultDate: this._state.dateFrom,
+          onChange: this.#dateFromChangeHandler
+        }
+      );
+    }
+  }
+
+  #setDatepickerTo() {
+    if (this._state.isDueDate) {
+      this.#datepickerTo = flatpickr(
+        this.element.querySelector('#event-end-time-1'),
+        {
+          dateFormat: 'd/m/y H:i',
+          enableTime: true,
+          defaultDate: this._state.dateTo,
+          minDate: this._state.dateFrom,
+          onChange: this.#dateToChangeHandler
+        }
+      );
+    }
+  }
+
+  #dateFromChangeHandler = ([date]) => {
+    this.updateElement({
+      dateFrom: date
+    });
+  };
+
+  #dateToChangeHandler = ([date]) => {
+    this.updateElement({
+      dateTo: date
+    });
   };
 
   setFormSubmitHandler = (callback) => {
@@ -212,6 +281,8 @@ export default class EditingFormView extends AbstractStatefulView {
     this.#setInnerHandlers();
     this.setFormSubmitHandler(this._callback.formSubmit);
     this.setFormCloseHandler(this._callback.formClose);
+    this.#setDatepickerFrom();
+    this.#setDatepickerTo();
   };
 
   #setInnerHandlers = () => {
@@ -246,13 +317,13 @@ export default class EditingFormView extends AbstractStatefulView {
     if(evt.target.tagName === 'INPUT'){
       evt.preventDefault();
 
-      const newOffer = this.#offersByType.find((offer) => offer.id === Number(evt.target.id.slice(-1))).id;
+      const newOfferId = Number(evt.target.id.slice(-1));
 
-      if(this._state.offers.includes(newOffer)) {
-        this._state.offers = this._state.offers.filter((n) => n !== Number(evt.target.id.slice(-1)));
+      if(this._state.offers.includes(newOfferId)) {
+        this._state.offers = this._state.offers.filter((id) => id !== newOfferId);
       }
       else {
-        this._state.offers.push(Number(evt.target.id.slice(-1)));
+        this._state.offers.push(newOfferId);
       }
 
       this.updateElement({

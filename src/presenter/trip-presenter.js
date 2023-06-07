@@ -24,12 +24,12 @@ export default class TripEventsPresenter {
   #noEventsComponent = new ZeroEventsView();
   #sortingComponent = new NewSortingView(this.#currentSortType);
 
-  constructor(tripContainer, pointsModel, destinationsModel, offersModel) {
+  constructor(tripContainer, pointsModel) {
     this.#eventsList = new TripEventsView();
     this.#tripContainer = tripContainer;
     this.#pointsModel = pointsModel;
-    this.#destinations = destinationsModel.destinations;
-    this.#offers = offersModel.offers;
+    this.#destinations = pointsModel.destinations;
+    this.#offers = pointsModel.offers;
   }
 
   init () {
