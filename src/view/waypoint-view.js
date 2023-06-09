@@ -2,6 +2,7 @@ import AbstractView from '../framework/view/abstract-view.js';
 import { humanizePointDay, humanizePointTime, getEventDuration } from '../utils/task.js';
 import { getOffersByType } from '../utils/common.js';
 import OffersView from './offers-view.js';
+import he from 'he';
 
 const getOffersBlock = (checkedOffersIds, allOffers) => {
   if (allOffers.length === 0 || checkedOffersIds.length === 0) {
@@ -44,7 +45,7 @@ const createWaypointTemplate = (point, availableDestinations, allOffers) => {
       <div class="event__type">
         <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
     </div>
-    <h3 class="event__title">${type} ${currentDestination.name}</h3>
+    <h3 class="event__title">${type} ${he.encode(currentDestination.name)}</h3>
     <div class="event__schedule">
       <p class="event__time">
         <time class="event__start-time" datetime=${dateFrom}>${timeFrom}</time>

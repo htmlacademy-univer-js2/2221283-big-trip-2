@@ -2,6 +2,7 @@ import { humanizeFormDate } from '../utils/task.js';
 import { getOffersByType } from '../utils/common.js';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import flatpickr from 'flatpickr';
+import he from 'he';
 
 import 'flatpickr/dist/flatpickr.min.css';
 
@@ -48,7 +49,7 @@ const getDestinationsList = (thisDestination, destinations, type) => {
     <label class="event__label  event__type-output" for="event-destination-1">
     ${type}
     </label>
-    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value='${thisDestination}' list="destination-list-1">
+    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value='${he.encode(thisDestination)}' list="destination-list-1">
     ${getAvailableDestinations(allDestinatioins)}
     </div>`);
 };
@@ -226,34 +227,31 @@ export default class EditingFormView extends AbstractStatefulView {
     });
   };
 
-  #setDatepickerFrom() {
-    if (this._state.isDueDate) {
-      this.#datepickerFrom = flatpickr(
-        this.element.querySelector('#event-start-time-1'),
-        {
-          dateFormat: 'd/m/y H:i',
-          enableTime: true,
-          defaultDate: this._state.dateFrom,
-          onChange: this.#dateFromChangeHandler
-        }
-      );
-    }
-  }
+  #setDatepickerFrom = () => {
+    this.#datepickerFrom = flatpickr(
+      this.element.querySelector('#event-start-time-1'),
+      {
+        dateFormat: 'd/m/y H:i',
+        enableTime: true,
+        defaultDate: this._state.dateFrom,
+        minDate: this._state.dateFrom,
+        onChange: this.#dateFromChangeHandler,
+      },
+    );
+  };
 
-  #setDatepickerTo() {
-    if (this._state.isDueDate) {
-      this.#datepickerTo = flatpickr(
-        this.element.querySelector('#event-end-time-1'),
-        {
-          dateFormat: 'd/m/y H:i',
-          enableTime: true,
-          defaultDate: this._state.dateTo,
-          minDate: this._state.dateFrom,
-          onChange: this.#dateToChangeHandler
-        }
-      );
-    }
-  }
+  #setDatepickerTo = () => {
+    this.#datepickerTo = flatpickr(
+      this.element.querySelector('#event-end-time-1'),
+      {
+        dateFormat: 'd/m/y H:i',
+        enableTime: true,
+        defaultDate: this._state.dateTo,
+        minDate: this._state.dateFrom,
+        onChange: this.#dateToChangeHandler,
+      },
+    );
+  };
 
   #dateFromChangeHandler = ([date]) => {
     this.updateElement({
@@ -277,10 +275,17 @@ export default class EditingFormView extends AbstractStatefulView {
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formCloseHandler);
   };
 
+  setDeleteClickHandler = (callback) => {
+    this._callback.deleteClick = callback;
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteClickHandler);
+  };
+
   _restoreHandlers = () => {
     this.#setInnerHandlers();
+
     this.setFormSubmitHandler(this._callback.formSubmit);
     this.setFormCloseHandler(this._callback.formClose);
+    this.setDeleteClickHandler(this._callback.deleteClick);
     this.#setDatepickerFrom();
     this.#setDatepickerTo();
   };
@@ -292,6 +297,7 @@ export default class EditingFormView extends AbstractStatefulView {
       this.element.querySelector('.event__available-offers').addEventListener('click', this.#offersClickHandler);
     }
 
+    this.element.querySelector('.event__input--price').addEventListener('input', this.#priceInputHandler);
     this.element.querySelector('.event__input--destination').addEventListener('input', this.#destinationInputHandler);
   };
 
@@ -305,10 +311,21 @@ export default class EditingFormView extends AbstractStatefulView {
     this._callback.formClose();
   };
 
+  #formDeleteClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.deleteClick(EditingFormView.parseStateToForm(this._state));
+  };
+
+  #updateOffersByType(newType) {
+    this.#offersByType = getOffersByType(this.#allOffers, newType);
+  }
+
   #pointTypeClickHandler = (evt) => {
     if(evt.target.tagName === 'INPUT'){
+      this.#updateOffersByType(evt.target.value);
       this.updateElement({
         type: evt.target.value,
+        offers: []
       });
     }
   };
@@ -340,6 +357,18 @@ export default class EditingFormView extends AbstractStatefulView {
     if(newDestination){
       this.updateElement({
         destination: newDestination.id,
+      });
+    }
+  };
+
+  #priceInputHandler = (evt) => {
+    evt.preventDefault();
+
+    const newPrice = Number(evt.target.value);
+
+    if(Number.isFinite(newPrice) && newPrice >= 0) {
+      this._setState({
+        basePrice: newPrice,
       });
     }
   };
