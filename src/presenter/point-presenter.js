@@ -2,6 +2,8 @@ import NewWaypointView from '../view/waypoint-view.js';
 import NewEditFormView from '../view/edit-form-view.js';
 import { render, replace, remove } from '../framework/render.js';
 import { isEscapeKey } from '../utils/common.js';
+import { UserAction, UpdateType } from '../const.js';
+import { isDatesEqual } from '../utils/task.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -40,6 +42,7 @@ export default class PointPresenter {
 
     this.#pointEditComponent.setFormSubmitHandler(this.#onEditFormSubmitClick);
     this.#pointEditComponent.setFormCloseHandler(this.#onCloseEditFormClick);
+    this.#pointEditComponent.setDeleteClickHandler(this.#handleDeleteClick);
 
     if (prevPointComponent === null || prevPointEditComponent === null) {
       render(this.#pointComponent, this.#pointListContainer);
@@ -86,7 +89,7 @@ export default class PointPresenter {
     this.#mode = Mode.EDITING;
   };
 
-  OnEscKeyClick = (evt) => {
+  #OnEscKeyClick = (evt) => {
     if (isEscapeKey(evt)) {
       evt.preventDefault();
       this.#onCloseEditFormClick();
@@ -95,16 +98,37 @@ export default class PointPresenter {
 
   #onEditFormClick = () => {
     this.#replacePointToEditForm();
-    document.addEventListener('keydown', this.OnEscKeyClick);
+    document.addEventListener('keydown', this.#OnEscKeyClick);
   };
 
   #onFavoriteButtonClick = () => {
-    this.#changeData({...this.#point, isFavourite: !this.#point.isFavourite});
+    this.#changeData(
+      UserAction.UPDATE_POINT,
+      UpdateType.PATCH,
+      {...this.#point, isFavourite: !this.#point.isFavorite},
+    );
   };
 
-  #onEditFormSubmitClick = (point) => {
-    this.#changeData(point);
+  #onEditFormSubmitClick = (update) => {
+    const isMinorUpdate = !isDatesEqual(this.#point.dateTo, update.dateTo)
+    || !isDatesEqual(this.#point.dateFrom, update.dateFrom)
+    || this.#point.basePrice !== update.basePrice;
+
+    this.#changeData(
+      UserAction.UPDATE_POINT,
+      isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
+      update,
+    );
     this.#replaceEditFormToPoint();
-    document.removeEventListener('keydown', this.OnEscKeyClick);
+    document.removeEventListener('keydown', this.#OnEscKeyClick);
+  };
+
+  #handleDeleteClick = (point) => {
+    this.#changeData(
+      UserAction.DELETE_POINT,
+      UpdateType.MINOR,
+      point,
+    );
+    document.removeEventListener('keydown', this.#OnEscKeyClick);
   };
 }
