@@ -25,9 +25,9 @@ const getOffersBlock = (checkedOffersIds, allOffers) => {
 };
 
 const createWaypointTemplate = (point, availableDestinations, allOffers) => {
-  const {basePrice, dateFrom, dateTo, destination, isFavourite, offers, type} = point;
+  const {basePrice, dateFrom, dateTo, destination, isFavorite: isFavorite, offers, type} = point;
 
-  const hasStar = isFavourite ? 'event__favorite-btn--active' : '';
+  const hasStar = isFavorite ? 'event__favorite-btn--active' : '';
 
   const offersBlock = getOffersBlock(offers, getOffersByType(allOffers, type).offers);
 

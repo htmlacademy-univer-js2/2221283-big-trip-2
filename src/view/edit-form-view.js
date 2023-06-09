@@ -7,12 +7,13 @@ import he from 'he';
 import 'flatpickr/dist/flatpickr.min.css';
 
 
-const fillOffersList = (checkedItemsIds, allOffers) =>
+const fillOffersList = (checkedItemsIds, allOffers, isDisabled) =>
   (allOffers.map((offer) => (
     `<div class="event__offer-selector">
       <input class="event__offer-checkbox  visually-hidden"
       id="event-offer-${offer.id}" type="checkbox" name="event-offer-comfort"
-      ${checkedItemsIds.includes(offer.id) ? 'checked' : ''}>
+      ${checkedItemsIds.includes(offer.id) ? 'checked' : ''}
+      ${isDisabled ? 'disabled' : ''}>
       <label class="event__offer-label" for="event-offer-${offer.id}">
         <span class="event__offer-title">${offer.title}</span>
         &plus;&euro;&nbsp;
@@ -21,7 +22,7 @@ const fillOffersList = (checkedItemsIds, allOffers) =>
     </div>`)).join('')
   );
 
-const getOffers = (checkedOffers, allOffers) => {
+const getOffers = (checkedOffers, allOffers, isDisabled) => {
   if (allOffers.length === 0){
     return '';
   }
@@ -29,7 +30,7 @@ const getOffers = (checkedOffers, allOffers) => {
   return (`<section class="event__section  event__section--offers">
     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
     <div class="event__available-offers">
-      ${fillOffersList(checkedOffers, allOffers)}
+      ${fillOffersList(checkedOffers, allOffers, isDisabled)}
     </div>
     </section>`);
 };
@@ -82,9 +83,16 @@ const getDestinationBlock = (destination) => {
 };
 
 const createEditingFormTemplate = (form, allDestinations, offersByType) => {
-  const {basePrice, dateFrom, dateTo, destination, offers, type} = form;
+  const {
+    basePrice,
+    dateFrom,
+    dateTo,
+    destination,
+    isDisabled,
+    offers,
+    type } = form;
 
-  const allOffers = getOffers(offers, offersByType.offers);
+  const allOffers = getOffers(offers, offersByType.offers, isDisabled);
 
   const humanizedDateFrom = humanizeFormDate(dateFrom);
   const humanizedDateTo = humanizeFormDate(dateTo);
@@ -108,8 +116,9 @@ const createEditingFormTemplate = (form, allDestinations, offersByType) => {
           <span class="visually-hidden">Choose event type</span>
           <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
         </label>
-        <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
-        <div class="event__type-list">
+        <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox"
+        ${isDisabled ? 'disabled' : ''}>
+        <div class="event__type-list" ${isDisabled ? 'disabled' : ''}>
           <fieldset class="event__type-group">
             <legend class="visually-hidden">Event type</legend>
             <div class="event__type-item">
@@ -154,10 +163,14 @@ const createEditingFormTemplate = (form, allDestinations, offersByType) => {
       ${availableDestinations}
       <div class="event__field-group  event__field-group--time">
         <label class="visually-hidden" for="event-start-time-1">From</label>
-        <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value='${humanizedDateFrom}'>
+        <input class="event__input  event__input--time" id="event-start-time-1" type="text"
+        ${isDisabled ? 'disabled' : ''}
+        name="event-start-time" value='${humanizedDateFrom}'>
         &mdash;
         <label class="visually-hidden" for="event-end-time-1">To</label>
-        <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value='${humanizedDateTo}'>
+        <input class="event__input  event__input--time" id="event-end-time-1" type="text"
+        ${isDisabled ? 'disabled' : ''}
+        name="event-end-time" value='${humanizedDateTo}'>
       </div>
       <div class="event__field-group  event__field-group--price">
         <label class="event__label" for="event-price-1">
@@ -166,7 +179,8 @@ const createEditingFormTemplate = (form, allDestinations, offersByType) => {
         </label>
         <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value=${basePrice}>
       </div>
-      <button class="event__save-btn  btn  btn--blue" type="submit"  ${isSubmitDisabled ? 'disabled' : ''}>Save</button>
+      <button class="event__save-btn  btn  btn--blue" type="submit"
+      ${isSubmitDisabled ? 'disabled' : ''}>Save</button>
       <button class="event__reset-btn" type="reset">Delete</button>
       <button class="event__rollup-btn" type="button">
         <span class="visually-hidden">Open event</span>
@@ -219,12 +233,6 @@ export default class EditingFormView extends AbstractStatefulView {
 
   reset = (point) => {
     this.updateElement(EditingFormView.parseFormToState(point));
-  };
-
-  #dueDateChangeHandler = ([userDate]) => {
-    this.updateElement({
-      dueDate: userDate
-    });
   };
 
   #setDatepickerFrom = () => {
@@ -293,7 +301,7 @@ export default class EditingFormView extends AbstractStatefulView {
   #setInnerHandlers = () => {
     this.element.querySelector('.event__type-list').addEventListener('click', this.#pointTypeClickHandler);
 
-    if(this.#offersByType.length > 0){
+    if(this.#offersByType.offers.length > 0){
       this.element.querySelector('.event__available-offers').addEventListener('click', this.#offersClickHandler);
     }
 
@@ -321,7 +329,7 @@ export default class EditingFormView extends AbstractStatefulView {
   }
 
   #pointTypeClickHandler = (evt) => {
-    if(evt.target.tagName === 'INPUT'){
+    if(evt.target.tagName === 'INPUT') {
       this.#updateOffersByType(evt.target.value);
       this.updateElement({
         type: evt.target.value,
