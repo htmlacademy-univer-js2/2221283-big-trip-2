@@ -3,8 +3,7 @@ import dayjs from 'dayjs';
 import EditingFormView from '../view/edit-form-view.js';
 import { render, remove, RenderPosition } from '../framework/render.js';
 import { isEscapeKey } from '../utils/common.js';
-import { UserAction, UpdateType,} from '../const.js';
-import { TYPES } from '../mock/constants.js';
+import { UserAction, UpdateType, TYPES} from '../const.js';
 
 export default class NewPointPresenter {
   #pointsListContainer = null;
@@ -44,7 +43,7 @@ export default class NewPointPresenter {
       return;
     }
 
-    this.#deleteCallback();
+    this.#deleteCallback?.();
 
     remove(this.#newPointComponent);
     this.#newPointComponent = null;
@@ -58,7 +57,7 @@ export default class NewPointPresenter {
     'dateTo': dayjs().toDate(),
     'destination': this.#destinations[0].id,
     'id': 0,
-    'isFavourite': false,
+    'isFavorite': false,
     'offers': [],
     'type': TYPES[0],
   });

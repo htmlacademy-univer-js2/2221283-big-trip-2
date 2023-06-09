@@ -105,7 +105,7 @@ export default class PointPresenter {
     this.#changeData(
       UserAction.UPDATE_POINT,
       UpdateType.PATCH,
-      {...this.#point, isFavourite: !this.#point.isFavorite},
+      {...this.#point, isFavorite: !this.#point.isFavorite},
     );
   };
 
