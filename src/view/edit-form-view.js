@@ -89,8 +89,11 @@ const createEditingFormTemplate = (form, allDestinations, offersByType) => {
     dateTo,
     destination,
     isDisabled,
+    isSaving,
+    isDeleting,
     offers,
-    type } = form;
+    type
+  } = form;
 
   const allOffers = getOffers(offers, offersByType.offers, isDisabled);
 
@@ -177,11 +180,14 @@ const createEditingFormTemplate = (form, allDestinations, offersByType) => {
           <span class="visually-hidden">Price</span>
           &euro;
         </label>
-        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value=${basePrice}>
+        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value=${basePrice}
+        ${isDisabled ? 'disabled' : ''}>
       </div>
       <button class="event__save-btn  btn  btn--blue" type="submit"
-      ${isSubmitDisabled ? 'disabled' : ''}>Save</button>
-      <button class="event__reset-btn" type="reset">Delete</button>
+      ${isSubmitDisabled || isDisabled ? 'disabled' : ''}>
+      ${isSaving ? 'Saving...' : 'Save'}</button>
+      <button class="event__reset-btn" type="reset">
+      ${isDeleting ? 'Deleting...' : 'Delete'}</button>
       <button class="event__rollup-btn" type="button">
         <span class="visually-hidden">Open event</span>
       </button>
@@ -381,6 +387,17 @@ export default class EditingFormView extends AbstractStatefulView {
     }
   };
 
-  static parseFormToState = (form) => ({...form});
-  static parseStateToForm = (state) => ({...state});
+  static parseFormToState = (form) => ({...form,
+    isDisabled: false,
+    isSaving: false,
+    isDeleting: false
+  });
+
+  static parseStateToForm = (state) => {
+    delete state.isDisabled;
+    delete state.isSaving;
+    delete state.isDeleting;
+
+    return state;
+  };
 }

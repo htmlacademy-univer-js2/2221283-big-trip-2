@@ -1,4 +1,3 @@
-import { nanoid } from 'nanoid';
 import dayjs from 'dayjs';
 import EditingFormView from '../view/edit-form-view.js';
 import { render, remove, RenderPosition } from '../framework/render.js';
@@ -56,17 +55,35 @@ export default class NewPointPresenter {
     'dateFrom': dayjs().toDate(),
     'dateTo': dayjs().toDate(),
     'destination': this.#destinations[0].id,
-    'id': 0,
-    'isFavorite': false,
+    'isFavourite': false,
     'offers': [],
     'type': TYPES[0],
   });
+
+  setSaving() {
+    this.#newPointComponent.updateElement({
+      isDisabled: true,
+      isSaving: true,
+    });
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this.#newPointComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#newPointComponent.shake(resetFormState);
+  }
 
   #onFormSubmitClick = (point) => {
     this.#changeData(
       UserAction.ADD_POINT,
       UpdateType.MINOR,
-      {id: nanoid(), ...point},
+      point,
     );
 
     this.destroy();
