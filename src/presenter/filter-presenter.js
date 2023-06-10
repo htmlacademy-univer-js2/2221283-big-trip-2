@@ -10,10 +10,10 @@ export default class FilterPresenter {
 
   #filterComponent = null;
 
-  constructor(filterContainer, filterModel, tasksModel) {
+  constructor(filterContainer, filterModel, pointsModel) {
     this.#filterContainer = filterContainer;
     this.#filterModel = filterModel;
-    this.#pointsModel = tasksModel;
+    this.#pointsModel = pointsModel;
 
     this.#pointsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
