@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import EditingFormView from '../view/edit-form-view.js';
+import NewFormView from '../view/creation-form-view.js';
 import { render, remove, RenderPosition } from '../framework/render.js';
 import { isEscapeKey } from '../utils/common.js';
 import { UserAction, UpdateType, TYPES} from '../const.js';
@@ -27,10 +27,9 @@ export default class NewPointPresenter {
       return;
     }
 
-    this.#newPointComponent = new EditingFormView(this.#getBlankForm(), this.#destinations, this.#offers);
+    this.#newPointComponent = new NewFormView(this.#getBlankForm(), this.#destinations, this.#offers);
 
     this.#newPointComponent.setFormSubmitHandler(this.#onFormSubmitClick);
-    this.#newPointComponent.setFormCloseHandler(this.#onFormCloseClick);
     this.#newPointComponent.setDeleteClickHandler(this.#onDeleteButtonClick);
 
     render(this.#newPointComponent, this.#pointsListContainer, RenderPosition.AFTERBEGIN);
@@ -90,7 +89,6 @@ export default class NewPointPresenter {
   };
 
   #onDeleteButtonClick = () => this.destroy();
-  #onFormCloseClick = () => this.destroy();
 
   #onEscKeyDownClick = (evt) => {
     if (isEscapeKey(evt)){

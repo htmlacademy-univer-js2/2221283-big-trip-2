@@ -1,5 +1,5 @@
 import NewWaypointView from '../view/waypoint-view.js';
-import NewEditFormView from '../view/edit-form-view.js';
+import EditingFormView from '../view/edit-form-view.js';
 import { render, replace, remove } from '../framework/render.js';
 import { isEscapeKey } from '../utils/common.js';
 import { UserAction, UpdateType } from '../const.js';
@@ -35,7 +35,7 @@ export default class PointPresenter {
     const prevPointEditComponent = this.#pointEditComponent;
 
     this.#pointComponent = new NewWaypointView(point, destinations, offers);
-    this.#pointEditComponent = new NewEditFormView(point, destinations, offers);
+    this.#pointEditComponent = new EditingFormView(point, destinations, offers);
 
     this.#pointComponent.setClickHandler(this.#onEditFormClick);
     this.#pointComponent.setFavoriteClickHandler(this.#onFavoriteButtonClick);

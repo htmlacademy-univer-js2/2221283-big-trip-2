@@ -100,7 +100,7 @@ const createEditingFormTemplate = (form, allDestinations, offersByType) => {
   const humanizedDateFrom = humanizeFormDate(dateFrom);
   const humanizedDateTo = humanizeFormDate(dateTo);
 
-  const isSubmitDisabled = dateFrom === null || dateTo === null;
+  const isSubmitDisabled = dateFrom === null || dateTo === null || basePrice === 0;
 
   const currentDestination = allDestinations.find((item) => item.id === destination);
 
@@ -311,7 +311,7 @@ export default class EditingFormView extends AbstractStatefulView {
       this.element.querySelector('.event__available-offers').addEventListener('click', this.#offersClickHandler);
     }
 
-    this.element.querySelector('.event__input--price').addEventListener('input', this.#priceInputHandler);
+    this.element.querySelector('.event__input--price').addEventListener('change', this.#priceInputHandler);
     this.element.querySelector('.event__input--destination').addEventListener('input', this.#destinationInputHandler);
   };
 
@@ -378,13 +378,9 @@ export default class EditingFormView extends AbstractStatefulView {
   #priceInputHandler = (evt) => {
     evt.preventDefault();
 
-    const newPrice = Number(evt.target.value);
-
-    if(Number.isFinite(newPrice) && newPrice >= 0) {
-      this._setState({
-        basePrice: newPrice,
-      });
-    }
+    this.updateElement({
+      basePrice: Math.abs(Number(evt.target.value.replace(/[^\d]/g, ''))),
+    });
   };
 
   static parseFormToState = (form) => ({...form,
