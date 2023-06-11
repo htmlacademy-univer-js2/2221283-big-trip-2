@@ -151,13 +151,11 @@ export default class TripEventsPresenter {
       return;
     }
 
-    const points = this.points;
-
     for (let i = 0; i < this.points.length; i++){
       this.#renderPoint(this.points[i]);
     }
 
-    if(points.length === 0){
+    if(this.points.length === 0){
       this.#renderNoEvents();
       return;
     }

@@ -21,7 +21,7 @@ const siteEvents = siteMainElement.querySelector('.trip-events');
 const newPointButton = siteHeaderElement.querySelector('.trip-main__event-add-btn');
 
 const tripPresenter = new TripEventsPresenter(siteEvents, pointsModel, offersModel, destinationsModel, filterModel);
-const filterPresenter = new FilterPresenter(siteFilters, filterModel, pointsModel);
+const filterPresenter = new FilterPresenter(siteFilters, filterModel, pointsModel, offersModel, destinationsModel);
 
 const onNewPointCloseClick = () => {
   newPointButton.disabled = false;
